@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: literary-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: DATABASE_PATH
+        value: literary_bot.db
+      - key: BOT_USERNAME
+        sync: false
+      - key: ADMIN_USER_ID
+        sync: false
