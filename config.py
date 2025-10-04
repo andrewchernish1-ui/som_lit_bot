@@ -26,7 +26,7 @@ def validate_config():
     """Проверка наличия всех необходимых переменных окружения"""
     required_vars = [
         ('TELEGRAM_BOT_TOKEN', TELEGRAM_BOT_TOKEN),
-        ('OPENROUTER_API_KEY', OPENROUTER_API_KEY),
+        ('GOOGLE_API_KEY', GOOGLE_API_KEY),
     ]
 
     missing_vars = []

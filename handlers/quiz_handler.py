@@ -5,7 +5,7 @@ import logging
 import random
 from keyboards import get_quiz_keyboard
 from database import get_user_dictionary
-from openrouter_service import generate_quiz_questions
+from gemini_service import generate_quiz_questions, initialize_gemini_service
 from literary_data import get_literary_terms
 
 logger = logging.getLogger(__name__)

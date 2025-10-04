@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 import logging
 from literary_data import get_word_definition, format_word_response
-from openrouter_service import generate_word_explanation
+from gemini_service import generate_word_explanation, initialize_gemini_service
 from database import save_word
 
 logger = logging.getLogger(__name__)
@@ -22,17 +22,25 @@ async def explain_word(update: Update, context: ContextTypes.DEFAULT_TYPE, word:
     try:
         logger.info(f"Пользователь {user_id} запросил объяснение слова: '{word}'")
 
-        # Сначала пытаемся использовать OpenRouter API (приоритет)
-        logger.info(f"Пытаемся получить объяснение слова '{word}' через OpenRouter API")
+        # Инициализируем Gemini сервис при необходимости
+        if not initialize_gemini_service():
+            logger.error("Не удалось инициализировать Gemini сервис")
+            await update.message.reply_text(
+                "❌ Сервис временно недоступен. Попробуйте позже."
+            )
+            return
+
+        # Сначала пытаемся использовать Gemini API (приоритет)
+        logger.info(f"Пытаемся получить объяснение слова '{word}' через Gemini API")
         explanation = generate_word_explanation(word)
 
         if explanation:
             # API успешно вернул объяснение
-            logger.info(f"OpenRouter API успешно вернул объяснение слова '{word}' (длина: {len(explanation)} символов)")
+            logger.info(f"Gemini API успешно вернул объяснение слова '{word}' (длина: {len(explanation)} символов)")
             response = f"🤖 ИИ-генерация:\n\n{explanation}"
         else:
             # API не сработал, пробуем предварительную базу как fallback
-            logger.warning(f"OpenRouter API не смог объяснить слово '{word}', пробуем предварительную базу")
+            logger.warning(f"Gemini API не смог объяснить слово '{word}', пробуем предварительную базу")
             word_data = get_word_definition(word)
 
             if word_data:
