@@ -2,7 +2,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 import logging
-from gemini_service import generate_text_retelling
+from openrouter_service import generate_text_retelling
 
 logger = logging.getLogger(__name__)
 

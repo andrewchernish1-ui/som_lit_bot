@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 import logging
 from literary_data import get_word_definition, format_word_response
-from gemini_service import generate_word_explanation
+from openrouter_service import generate_word_explanation
 from database import save_word
 
 logger = logging.getLogger(__name__)

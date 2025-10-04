@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 import logging
 from literary_data import get_phrase_explanation
-from gemini_service import generate_phrase_explanation
+from openrouter_service import generate_phrase_explanation
 
 logger = logging.getLogger(__name__)
 

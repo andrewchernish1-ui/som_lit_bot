@@ -9,8 +9,8 @@ load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 BOT_USERNAME = os.getenv('BOT_USERNAME')
 
-# Google Gemini API
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+# OpenRouter API
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
 
 # Database
 DATABASE_PATH = os.getenv('DATABASE_PATH', 'literary_bot.db')
@@ -23,7 +23,7 @@ def validate_config():
     """Проверка наличия всех необходимых переменных окружения"""
     required_vars = [
         ('TELEGRAM_BOT_TOKEN', TELEGRAM_BOT_TOKEN),
-        ('GOOGLE_API_KEY', GOOGLE_API_KEY),
+        ('OPENROUTER_API_KEY', OPENROUTER_API_KEY),
     ]
 
     missing_vars = []
