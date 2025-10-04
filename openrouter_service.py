@@ -33,7 +33,7 @@ class OpenRouterService:
             logger.info(f"Отправляем запрос в OpenRouter API (длина промпта: {len(prompt)} символов)")
 
             completion = self.client.chat.completions.create(
-                model="google/gemini-2.0-flash-exp:free",  # Используем Gemini 2.0 через OpenRouter
+                model="google/gemini-2.0-flash-exp:free",  # Используем Gemini 2.0 Flash через OpenRouter (бесплатная модель)
                 messages=[
                     {"role": "user", "content": prompt}
                 ],
