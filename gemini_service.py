@@ -14,8 +14,22 @@ class GeminiService:
             raise ValueError("GOOGLE_API_KEY не установлен")
 
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
-        logger.info("Gemini API инициализирован")
+
+        # Попытка инициализации с предпочитаемой моделью
+        models_to_try = ['gemini-2.5-flash', 'gemini-pro', 'gemini-pro-vision']
+
+        self.model = None
+        for model_name in models_to_try:
+            try:
+                self.model = genai.GenerativeModel(model_name)
+                logger.info(f"Gemini API инициализирован с моделью: {model_name}")
+                break
+            except Exception as e:
+                logger.warning(f"Не удалось инициализировать модель {model_name}: {e}")
+                continue
+
+        if self.model is None:
+            raise ValueError("Не удалось инициализировать ни одну модель Gemini")
 
     def generate_explanation(self, prompt: str, max_tokens: int = 500) -> Optional[str]:
         """
@@ -226,10 +240,17 @@ class GeminiService:
         return questions
 
 # Глобальный экземпляр сервиса
+logger.info("Начинаем инициализацию Gemini API...")
 try:
     gemini_service = GeminiService(GOOGLE_API_KEY)
+    logger.info("Gemini API успешно инициализирован глобально")
 except ValueError as e:
     logger.error(f"Не удалось инициализировать Gemini API: {e}")
+    logger.error(f"GOOGLE_API_KEY присутствует: {bool(GOOGLE_API_KEY)}")
+    gemini_service = None
+    logger.warning("Бот будет работать только с предварительной базой данных")
+except Exception as e:
+    logger.error(f"Неожиданная ошибка при инициализации Gemini: {e}")
     gemini_service = None
 
 def generate_word_explanation(word: str, context: str = "") -> Optional[str]:
