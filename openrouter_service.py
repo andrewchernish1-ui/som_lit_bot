@@ -30,6 +30,8 @@ class OpenRouterService:
             str: Сгенерированное объяснение
         """
         try:
+            logger.info(f"Отправляем запрос в OpenRouter API (длина промпта: {len(prompt)} символов)")
+
             completion = self.client.chat.completions.create(
                 model="google/gemini-2.0-flash-exp:free",  # Используем Gemini 2.0 через OpenRouter
                 messages=[
@@ -40,13 +42,24 @@ class OpenRouterService:
             )
 
             if completion.choices and completion.choices[0].message:
-                return completion.choices[0].message.content.strip()
+                response_content = completion.choices[0].message.content.strip()
+                logger.info(f"OpenRouter API вернул ответ (длина: {len(response_content)} символов)")
+                return response_content
             else:
-                logger.warning("OpenRouter вернул пустой ответ")
+                logger.warning("OpenRouter вернул пустой ответ или отсутствие choices")
                 return None
 
+        except openai.APIError as e:
+            logger.error(f"Ошибка API OpenRouter: {e} (код ошибки: {getattr(e, 'code', 'unknown')})")
+            return None
+        except openai.RateLimitError as e:
+            logger.error(f"Превышен лимит запросов OpenRouter: {e}")
+            return None
+        except openai.AuthenticationError as e:
+            logger.error(f"Ошибка аутентификации OpenRouter: {e}")
+            return None
         except Exception as e:
-            logger.error(f"Ошибка при вызове OpenRouter API: {e}")
+            logger.error(f"Неожиданная ошибка при вызове OpenRouter API: {e}", exc_info=True)
             return None
 
     def explain_word(self, word: str, context: str = "") -> str:

@@ -237,3 +237,18 @@ def format_word_response(word_data: dict):
             response += f"\n• {example}"
 
     return response
+
+def get_literary_terms():
+    """
+    Получить список литературных терминов для викторины
+
+    Returns:
+        list: Список терминов с определениями
+    """
+    terms = []
+    for term, data in LITERARY_TERMS.items():
+        terms.append({
+            'term': term,
+            'definition': data['definition']
+        })
+    return terms

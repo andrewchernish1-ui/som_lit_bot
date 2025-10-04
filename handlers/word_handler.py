@@ -20,20 +20,28 @@ async def explain_word(update: Update, context: ContextTypes.DEFAULT_TYPE, word:
     user_id = update.effective_user.id
 
     try:
-        # Сначала пытаемся найти в предварительной базе
-        word_data = get_word_definition(word)
+        logger.info(f"Пользователь {user_id} запросил объяснение слова: '{word}'")
 
-        if word_data:
-            # Слово найдено в предварительной базе
-            response = format_word_response(word_data)
-            explanation = word_data['definition']
+        # Сначала пытаемся использовать OpenRouter API (приоритет)
+        logger.info(f"Пытаемся получить объяснение слова '{word}' через OpenRouter API")
+        explanation = generate_word_explanation(word)
+
+        if explanation:
+            # API успешно вернул объяснение
+            logger.info(f"OpenRouter API успешно вернул объяснение слова '{word}' (длина: {len(explanation)} символов)")
+            response = f"🤖 ИИ-генерация:\n\n{explanation}"
         else:
-            # Слово не найдено, используем Gemini API
-            explanation = generate_word_explanation(word)
+            # API не сработал, пробуем предварительную базу как fallback
+            logger.warning(f"OpenRouter API не смог объяснить слово '{word}', пробуем предварительную базу")
+            word_data = get_word_definition(word)
 
-            if explanation:
-                response = f"🤖 ИИ-генерация:\n\n{explanation}"
+            if word_data:
+                logger.info(f"Слово '{word}' найдено в предварительной базе данных")
+                response = format_word_response(word_data)
+                explanation = word_data['definition']
             else:
+                # Ни API, ни база не сработали
+                logger.error(f"Не удалось объяснить слово '{word}' ни через API, ни через базу данных")
                 response = (
                     f"❌ К сожалению, я не смог объяснить слово '{word}'.\n\n"
                     "Возможно, это опечатка или очень редкое слово. "
@@ -43,14 +51,18 @@ async def explain_word(update: Update, context: ContextTypes.DEFAULT_TYPE, word:
                 return
 
         # Отправляем ответ пользователю
+        logger.info(f"Отправляем ответ пользователю {user_id} для слова '{word}'")
         await update.message.reply_text(response)
 
         # Сохраняем слово в личный словарь пользователя (если объяснение удалось)
         if explanation:
+            logger.info(f"Сохраняем слово '{word}' в личный словарь пользователя {user_id}")
             save_word(user_id, word, explanation)
 
+        logger.info(f"Успешно обработан запрос на объяснение слова '{word}' для пользователя {user_id}")
+
     except Exception as e:
-        logger.error(f"Ошибка при объяснении слова '{word}': {e}")
+        logger.error(f"Критическая ошибка при объяснении слова '{word}' для пользователя {user_id}: {e}", exc_info=True)
         await update.message.reply_text(
             f"❌ Произошла ошибка при объяснении слова '{word}'. Попробуйте позже."
         )
