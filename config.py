@@ -12,6 +12,9 @@ BOT_USERNAME = os.getenv('BOT_USERNAME')
 # OpenRouter API
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
 
+# Google Gemini API (необязательный, используется только если нет OpenRouter)
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+
 # Database
 DATABASE_PATH = os.getenv('DATABASE_PATH', 'literary_bot.db')
 
