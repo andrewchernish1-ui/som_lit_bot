@@ -1,0 +1,69 @@
+#!/bin/bash
+echo "=== ДИАГНОСТИКА СЕРВЕРА ==="
+echo "Время: $(date)"
+echo "Сервер: $(hostname -I)"
+echo ""
+
+# Проверка Docker
+echo "1. Проверка Docker:"
+docker --version
+echo "Статус Docker: $(systemctl is-active docker)"
+echo ""
+
+# Проверка контейнеров
+echo "2. Проверка контейнеров:"
+docker ps -a
+echo ""
+
+# Проверка логов бота
+echo "3. Логи контейнера literary-bot:"
+if docker ps -q -f name=literary-bot | grep -q .; then
+    echo "Контейнер запущен, последние 50 строк логов:"
+    docker logs literary-bot --tail 50
+else
+    echo "Контейнер literary-bot НЕ ЗАПУЩЕН!"
+    echo "Проверка остановленных контейнеров:"
+    docker ps -a | grep literary
+fi
+echo ""
+
+# Проверка файлов проекта
+echo "4. Проверка файлов проекта:"
+echo "Содержимое /root:"
+ls -la /root/
+echo ""
+
+echo "Содержимое директории проекта:"
+if [ -d "/root/som_lit_bot" ]; then
+    ls -la /root/som_lit_bot/
+    echo ""
+    echo "Проверка .env файла:"
+    if [ -f "/root/som_lit_bot/.env" ]; then
+        echo "Файл .env найден:"
+        ls -la /root/som_lit_bot/.env
+        echo "Содержимое .env (без секретных данных):"
+        grep -v "TOKEN\|KEY\|PASSWORD" /root/som_lit_bot/.env | head -10
+    else
+        echo "Файл .env НЕ НАЙДЕН!"
+    fi
+    echo ""
+    echo "Проверка логов приложения:"
+    if [ -f "/root/som_lit_bot/bot.log" ]; then
+        echo "Файл логов найден:"
+        ls -la /root/som_lit_bot/bot.log
+        echo "Последние 30 строк логов:"
+        tail -30 /root/som_lit_bot/bot.log
+    else
+        echo "Файл логов НЕ НАЙДЕН!"
+    fi
+else
+    echo "Директория /root/som_lit_bot НЕ НАЙДЕНА!"
+fi
+echo ""
+
+# Проверка процессов Python
+echo "5. Проверка процессов Python:"
+ps aux | grep python
+echo ""
+
+echo "=== ДИАГНОСТИКА ЗАВЕРШЕНА ==="

@@ -1,62 +1,78 @@
-"""Интеграция с Google Gemini API для генерации объяснений"""
+"""Интеграция с DeepSeek через Open Router API для генерации объяснений"""
 import logging
+import requests
 from typing import Optional, Dict, Any
-import google.generativeai as genai
-from config import GOOGLE_API_KEY
+from config import OPENROUTER_API_KEY
 
 logger = logging.getLogger(__name__)
 
-class GeminiService:
-    """Класс для работы с Google Gemini API"""
+class LLMService:
+    """Класс для работы с DeepSeek через Open Router API"""
 
     def __init__(self, api_key: str):
         if not api_key:
-            raise ValueError("GOOGLE_API_KEY не установлен")
+            raise ValueError("OPENROUTER_API_KEY не установлен")
 
-        genai.configure(api_key=api_key)
+        self.api_key = api_key
+        self.base_url = "https://openrouter.ai/api/v1"
+        self.model = "deepseek/deepseek-chat"
+        self.headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://github.com/andrewchernish1-ui/som_lit_bot",
+            "X-Title": "Literary Assistant Bot"
+        }
 
-        # Настройка параметров безопасности
-        safety_settings = [
-            {
-                "category": "HARM_CATEGORY_HARASSMENT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_HATE_SPEECH",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            }
-        ]
+        logger.info(f"LLM API инициализирован с моделью: {self.model}")
 
-        # Попытка инициализации с предпочитаемой моделью
-        models_to_try = ['gemini-2.5-flash', 'gemini-pro', 'gemini-pro-vision']
+    def _make_request(self, messages: list, max_tokens: int = 500, temperature: float = 0.7) -> Optional[str]:
+        """
+        Выполнить запрос к Open Router API
 
-        self.model = None
-        for model_name in models_to_try:
-            try:
-                self.model = genai.GenerativeModel(
-                    model_name,
-                    safety_settings=safety_settings
-                )
-                logger.info(f"Gemini API инициализирован с моделью: {model_name}")
-                break
-            except Exception as e:
-                logger.warning(f"Не удалось инициализировать модель {model_name}: {e}")
-                continue
+        Args:
+            messages: Список сообщений в формате OpenAI
+            max_tokens: Максимальное количество токенов
+            temperature: Температура генерации
 
-        if self.model is None:
-            raise ValueError("Не удалось инициализировать ни одну модель Gemini")
+        Returns:
+            Optional[str]: Ответ модели или None при ошибке
+        """
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+        }
+
+        try:
+            response = requests.post(
+                f"{self.base_url}/chat/completions",
+                headers=self.headers,
+                json=payload,
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('choices') and len(data['choices']) > 0:
+                    return data['choices'][0]['message']['content'].strip()
+                else:
+                    logger.warning("API вернул пустой ответ")
+                    return None
+            else:
+                logger.error(f"API ошибка: {response.status_code} - {response.text}")
+                return None
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Ошибка сети при вызове API: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Неожиданная ошибка при вызове API: {e}")
+            return None
 
     def generate_explanation(self, prompt: str, max_tokens: int = 500) -> Optional[str]:
         """
-        Сгенерировать объяснение с помощью Gemini
+        Сгенерировать объяснение с помощью DeepSeek
 
         Args:
             prompt (str): Запрос для генерации
@@ -65,29 +81,14 @@ class GeminiService:
         Returns:
             Optional[str]: Сгенерированное объяснение или None при ошибке
         """
-        try:
-            # Настраиваем параметры генерации
-            generation_config = genai.types.GenerationConfig(
-                max_output_tokens=max_tokens,
-                temperature=0.7,
-                top_p=0.8,
-                top_k=40
-            )
+        messages = [
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
 
-            response = self.model.generate_content(
-                prompt,
-                generation_config=generation_config
-            )
-
-            if response and response.text:
-                return response.text.strip()
-            else:
-                logger.warning("Gemini вернул пустой ответ")
-                return None
-
-        except Exception as e:
-            logger.error(f"Ошибка при вызове Gemini API: {e}")
-            return None
+        return self._make_request(messages, max_tokens)
 
     def explain_word(self, word: str, context: str = "") -> Optional[str]:
         """
@@ -263,49 +264,49 @@ class GeminiService:
         return questions
 
 # Глобальный экземпляр сервиса (инициализируется только при необходимости)
-gemini_service = None
+llm_service = None
 
-def initialize_gemini_service():
-    """Инициализировать Gemini сервис при необходимости"""
-    global gemini_service
-    if gemini_service is None:
-        logger.info("Начинаем инициализацию Gemini API...")
+def initialize_llm_service():
+    """Инициализировать LLM сервис при необходимости"""
+    global llm_service
+    if llm_service is None:
+        logger.info("Начинаем инициализацию LLM API...")
         try:
-            gemini_service = GeminiService(GOOGLE_API_KEY)
-            logger.info("Gemini API успешно инициализирован глобально")
+            llm_service = LLMService(OPENROUTER_API_KEY)
+            logger.info("LLM API успешно инициализирован глобально")
             return True
         except ValueError as e:
-            logger.error(f"Не удалось инициализировать Gemini API: {e}")
-            logger.error(f"GOOGLE_API_KEY присутствует: {bool(GOOGLE_API_KEY)}")
-            gemini_service = None
+            logger.error(f"Не удалось инициализировать LLM API: {e}")
+            logger.error(f"OPENROUTER_API_KEY присутствует: {bool(OPENROUTER_API_KEY)}")
+            llm_service = None
             logger.warning("Бот будет работать только с предварительной базой данных")
             return False
         except Exception as e:
-            logger.error(f"Неожиданная ошибка при инициализации Gemini: {e}")
-            gemini_service = None
+            logger.error(f"Неожиданная ошибка при инициализации LLM: {e}")
+            llm_service = None
             return False
     return True
 
 def generate_word_explanation(word: str, context: str = "") -> Optional[str]:
     """Глобальная функция для объяснения слова"""
-    if gemini_service:
-        return gemini_service.explain_word(word, context)
+    if llm_service:
+        return llm_service.explain_word(word, context)
     return None
 
 def generate_phrase_explanation(phrase: str) -> Optional[str]:
     """Глобальная функция для объяснения фразы"""
-    if gemini_service:
-        return gemini_service.explain_phrase(phrase)
+    if llm_service:
+        return llm_service.explain_phrase(phrase)
     return None
 
 def generate_text_retelling(text: str) -> Optional[str]:
     """Глобальная функция для пересказывания текста"""
-    if gemini_service:
-        return gemini_service.retell_text(text)
+    if llm_service:
+        return llm_service.retell_text(text)
     return None
 
 def generate_quiz_questions(topic: str = "русская литература", count: int = 3) -> Optional[list]:
     """Глобальная функция для генерации вопросов викторины"""
-    if gemini_service:
-        return gemini_service.generate_quiz_questions(topic, count)
+    if llm_service:
+        return llm_service.generate_quiz_questions(topic, count)
     return None

@@ -27,7 +27,7 @@ cp .env.example .env
 
 Заполните API ключи:
 - **Telegram Bot Token**: получите у [@BotFather](https://t.me/botfather)
-- **Google Gemini API Key**: получите в [Google AI Studio](https://makersuite.google.com/app/apikey)
+- **OpenRouter API Key**: получите на [OpenRouter.ai](https://openrouter.ai/)
 
 ### 3. Запуск бота
 ```bash
@@ -49,7 +49,7 @@ python main.py
 
 - Python 3.8+
 - Telegram Bot API токен
-- Google Gemini API ключ
+- OpenRouter API ключ (для DeepSeek модели)
 - SQLite (встроен в Python)
 
 ## 📁 Структура проекта
@@ -60,7 +60,7 @@ literary-bot/
 ├── config.py            # Конфигурация
 ├── literary_data.py     # Предварительная база данных
 ├── database.py          # Работа с SQLite
-├── gemini_service.py    # Интеграция с Gemini AI
+├── llm_service.py       # Интеграция с DeepSeek через Open Router
 ├── keyboards.py         # Клавиатуры бота
 ├── handlers/            # Обработчики команд
 │   ├── start_handler.py

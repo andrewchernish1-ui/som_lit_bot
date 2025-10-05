@@ -2,7 +2,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 import logging
-from gemini_service import generate_text_retelling, initialize_gemini_service
+from llm_service import generate_text_retelling, initialize_llm_service
 
 logger = logging.getLogger(__name__)
 
@@ -35,11 +35,11 @@ async def retell_text(update: Update, context: ContextTypes.DEFAULT_TYPE, text: 
             processing_msg = await update.message.reply_text("🔄 Обрабатываю текст...")
 
         # Генерируем пересказ
-        logger.info(f"Отправляем текст пользователя {user_id} в Gemini API для пересказывания")
+        logger.info(f"Отправляем текст пользователя {user_id} в LLM API для пересказывания")
 
-        # Инициализируем Gemini сервис
-        if not initialize_gemini_service():
-            logger.error("Не удалось инициализировать Gemini сервис для пересказывания текста")
+        # Инициализируем LLM сервис
+        if not initialize_llm_service():
+            logger.error("Не удалось инициализировать LLM сервис для пересказывания текста")
             await update.message.reply_text(
                 "❌ Сервис временно недоступен. Попробуйте позже."
             )
@@ -49,7 +49,7 @@ async def retell_text(update: Update, context: ContextTypes.DEFAULT_TYPE, text: 
 
         if retelling:
             response = f"📝 Современный пересказ:\n\n{retelling}"
-            logger.info(f"Gemini API успешно вернул пересказ для пользователя {user_id} (длина: {len(retelling)} символов)")
+            logger.info(f"LLM API успешно вернул пересказ для пользователя {user_id} (длина: {len(retelling)} символов)")
 
             # Проверяем длину ответа
             max_length = 4000
@@ -57,7 +57,7 @@ async def retell_text(update: Update, context: ContextTypes.DEFAULT_TYPE, text: 
                 logger.warning(f"Пересказ для пользователя {user_id} слишком длинный, обрезаем до {max_length} символов")
                 response = response[:max_length-100] + "\n\n... [Пересказ обрезан из-за ограничений Telegram]"
         else:
-            logger.error(f"Gemini API не смог пересказать текст для пользователя {user_id}")
+            logger.error(f"LLM API не смог пересказать текст для пользователя {user_id}")
             response = (
                 "❌ Не удалось пересказать текст.\n\n"
                 "Возможно, текст слишком сложный или содержит неподдерживаемые символы. "

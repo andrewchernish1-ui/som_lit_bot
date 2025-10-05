@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 import logging
 from literary_data import get_phrase_explanation
-from gemini_service import generate_phrase_explanation, initialize_gemini_service
+from llm_service import generate_phrase_explanation, initialize_llm_service
 
 logger = logging.getLogger(__name__)
 
@@ -24,12 +24,12 @@ async def explain_phrase(update: Update, context: ContextTypes.DEFAULT_TYPE, phr
             # Фраза найдена в предварительной базе
             response = format_phrase_response(phrase_data)
         else:
-            # Фраза не найдена, используем Gemini API
-            logger.info(f"Пытаемся объяснить фразу через Gemini API: '{phrase[:50]}...'")
+            # Фраза не найдена, используем LLM API
+            logger.info(f"Пытаемся объяснить фразу через LLM API: '{phrase[:50]}...'")
 
-            # Инициализируем Gemini сервис
-            if not initialize_gemini_service():
-                logger.error("Не удалось инициализировать Gemini сервис для объяснения фразы")
+            # Инициализируем LLM сервис
+            if not initialize_llm_service():
+                logger.error("Не удалось инициализировать LLM сервис для объяснения фразы")
                 await update.message.reply_text(
                     "❌ Сервис временно недоступен. Попробуйте позже."
                 )
@@ -38,10 +38,10 @@ async def explain_phrase(update: Update, context: ContextTypes.DEFAULT_TYPE, phr
             explanation = generate_phrase_explanation(phrase)
 
             if explanation:
-                logger.info(f"Gemini API успешно объяснил фразу (длина: {len(explanation)} символов)")
+                logger.info(f"LLM API успешно объяснил фразу (длина: {len(explanation)} символов)")
                 response = f"🤖 ИИ-генерация:\n\n{explanation}"
             else:
-                logger.warning(f"Gemini API не смог объяснить фразу: '{phrase[:50]}...'")
+                logger.warning(f"LLM API не смог объяснить фразу: '{phrase[:50]}...'")
                 response = (
                     f"❌ К сожалению, я не смог объяснить эту фразу.\n\n"
                     f"Фраза: '{phrase}'\n\n"

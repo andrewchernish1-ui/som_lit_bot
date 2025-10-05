@@ -19,12 +19,12 @@ def test_imports():
         from database import DatabaseManager, save_word, get_user_dictionary
         print("✅ database.py - OK")
 
-        # Тестируем Gemini (с плейсхолдером)
+        # Тестируем LLM сервис (с плейсхолдером)
         try:
-            from gemini_service import generate_word_explanation
-            print("✅ gemini_service.py - OK (с плейсхолдером)")
+            from llm_service import generate_word_explanation
+            print("✅ llm_service.py - OK (с плейсхолдером)")
         except Exception as e:
-            print(f"⚠️ gemini_service.py - инициализация с ошибкой: {e}")
+            print(f"⚠️ llm_service.py - инициализация с ошибкой: {e}")
 
         # Тестируем обработчики
         from handlers.start_handler import start
