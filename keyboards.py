@@ -36,3 +36,41 @@ def get_dictionary_actions_keyboard() -> InlineKeyboardMarkup:
     ]
 
     return InlineKeyboardMarkup(keyboard)
+
+def get_response_actions_keyboard(word: str = None) -> InlineKeyboardMarkup:
+    """Создает клавиатуру действий для ответа бота"""
+    keyboard = []
+
+    if word:
+        keyboard.append([
+            InlineKeyboardButton("📚 Добавить в словарь", callback_data=f"add_word_{word}"),
+            InlineKeyboardButton("⭐ Оценить ответ", callback_data="rate_response")
+        ])
+
+    keyboard.append([
+        InlineKeyboardButton("🔄 Объяснить иначе", callback_data="explain_again"),
+        InlineKeyboardButton("❓ Задать вопрос", callback_data="ask_question")
+    ])
+
+    return InlineKeyboardMarkup(keyboard)
+
+def get_popular_terms_keyboard() -> InlineKeyboardMarkup:
+    """Создает клавиатуру с популярными литературными терминами"""
+    terms = [
+        ["метафора", "метонимия"],
+        ["ирония", "гипербола"],
+        ["аналогия", "аллегория"],
+        ["📖 Другие термины", "🎭 Пословицы"]
+    ]
+
+    keyboard = []
+    for row in terms:
+        keyboard_row = []
+        for term in row:
+            if "📖" in term or "🎭" in term:
+                keyboard_row.append(InlineKeyboardButton(term, callback_data=f"category_{term.replace('📖 ', '').replace('🎭 ', '').lower()}"))
+            else:
+                keyboard_row.append(InlineKeyboardButton(term, callback_data=f"term_{term}"))
+        keyboard.append(keyboard_row)
+
+    return InlineKeyboardMarkup(keyboard)

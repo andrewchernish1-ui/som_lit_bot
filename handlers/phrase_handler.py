@@ -27,6 +27,9 @@ async def explain_phrase(update: Update, context: ContextTypes.DEFAULT_TYPE, phr
             # Фраза не найдена, используем LLM API
             logger.info(f"Пытаемся объяснить фразу через LLM API: '{phrase[:50]}...'")
 
+            # Отправляем сообщение "бот думает"
+            thinking_msg = await update.message.reply_text("🎭 Расшифровываю литературный код...")
+
             # Инициализируем LLM сервис
             if not initialize_llm_service():
                 logger.error("Не удалось инициализировать LLM сервис для объяснения фразы")
@@ -39,7 +42,7 @@ async def explain_phrase(update: Update, context: ContextTypes.DEFAULT_TYPE, phr
 
             if explanation:
                 logger.info(f"LLM API успешно объяснил фразу (длина: {len(explanation)} символов)")
-                response = f"🤖 ИИ-генерация:\n\n{explanation}"
+                response = f"🎭 \"{phrase}\"\n\n🤖 ИИ-генерация:\n\n{explanation}"
             else:
                 logger.warning(f"LLM API не смог объяснить фразу: '{phrase[:50]}...'")
                 response = (
@@ -48,6 +51,13 @@ async def explain_phrase(update: Update, context: ContextTypes.DEFAULT_TYPE, phr
                     "Возможно, это слишком сложная цитата или у меня нет достаточного контекста. "
                     "Попробуйте упростить запрос или использовать /слово для отдельных терминов."
                 )
+
+        # Удаляем сообщение "бот думает" если оно было отправлено
+        if 'thinking_msg' in locals():
+            try:
+                await thinking_msg.delete()
+            except Exception as e:
+                logger.warning(f"Не удалось удалить сообщение 'бот думает': {e}")
 
         # Проверяем длину ответа - Telegram ограничивает 4096 символами
         max_length = 4000  # Даем запас
@@ -74,12 +84,12 @@ def format_phrase_response(phrase_data: dict) -> str:
     Returns:
         str: Отформатированный текст ответа
     """
-    response = f"📖 {phrase_data['explanation']}"
+    response = f"🎭 {phrase_data['explanation']}"
 
     if phrase_data.get('modern_paraphrase'):
-        response += f"\n\n🔍 Современный вариант: {phrase_data['modern_paraphrase']}"
+        response += f"\n\nСовременный вариант\n{phrase_data['modern_paraphrase']}"
 
     if phrase_data.get('cultural_context'):
-        response += f"\n\n🌍 Культурный контекст: {phrase_data['cultural_context']}"
+        response += f"\n\nКультурный контекст\n{phrase_data['cultural_context']}"
 
     return response

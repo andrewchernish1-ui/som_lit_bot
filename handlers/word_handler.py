@@ -5,6 +5,7 @@ import logging
 from literary_data import get_word_definition, format_word_response
 from llm_service import generate_word_explanation, initialize_llm_service
 from database import save_word
+from keyboards import get_response_actions_keyboard
 
 logger = logging.getLogger(__name__)
 
@@ -32,12 +33,16 @@ async def explain_word(update: Update, context: ContextTypes.DEFAULT_TYPE, word:
 
         # Сначала пытаемся использовать LLM API (приоритет)
         logger.info(f"Пытаемся получить объяснение слова '{word}' через LLM API")
+
+        # Отправляем сообщение "бот думает"
+        thinking_msg = await update.message.reply_text("🔍 Ищу объяснение в литературных архивах...")
+
         explanation = generate_word_explanation(word)
 
         if explanation:
             # API успешно вернул объяснение
             logger.info(f"LLM API успешно вернул объяснение слова '{word}' (длина: {len(explanation)} символов)")
-            response = f"🤖 ИИ-генерация:\n\n{explanation}"
+            response = f"📖 {word}\n\n🤖 ИИ-генерация:\n\n{explanation}"
         else:
             # API не сработал, пробуем предварительную базу как fallback
             logger.warning(f"LLM API не смог объяснить слово '{word}', пробуем предварительную базу")
@@ -58,9 +63,18 @@ async def explain_word(update: Update, context: ContextTypes.DEFAULT_TYPE, word:
                 await update.message.reply_text(response)
                 return
 
-        # Отправляем ответ пользователю
+        # Удаляем сообщение "бот думает" и отправляем ответ пользователю
+        try:
+            await thinking_msg.delete()
+        except Exception as e:
+            logger.warning(f"Не удалось удалить сообщение 'бот думает': {e}")
+
         logger.info(f"Отправляем ответ пользователю {user_id} для слова '{word}'")
-        await update.message.reply_text(response)
+
+        # Создаем клавиатуру действий
+        keyboard = get_response_actions_keyboard(word)
+
+        await update.message.reply_text(response, reply_markup=keyboard)
 
         # Сохраняем слово в личный словарь пользователя (если объяснение удалось)
         if explanation:
