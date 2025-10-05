@@ -20,14 +20,16 @@ pip install -r requirements.txt
 ```
 
 ### 2. Настройка переменных окружения
-Создайте файл `.env` на основе `.env.example`:
+Создайте файл `.env.local` на основе `.env.example` (этот файл не коммитится в Git):
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-Заполните API ключи:
+Заполните API ключи в `.env.local`:
 - **Telegram Bot Token**: получите у [@BotFather](https://t.me/botfather)
 - **OpenRouter API Key**: получите на [OpenRouter.ai](https://openrouter.ai/)
+
+⚠️ **Важно**: `.env.local` содержит секретные ключи и не должен коммититься в Git!
 
 ### 3. Запуск бота
 ```bash
