@@ -6,6 +6,6 @@ services:
     container_name: literary-bot
     restart: unless-stopped
     env_file:
-      - .env.local
+      - .env
     volumes:
       - ./data:/data
