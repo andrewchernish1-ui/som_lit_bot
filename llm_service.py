@@ -15,7 +15,7 @@ class LLMService:
 
         self.api_key = api_key
         self.base_url = "https://openrouter.ai/api/v1"
-        self.model = "deepseek/deepseek-chat"
+        self.model = "deepseek/deepseek-chat-v3.1:free"
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
