@@ -9,7 +9,7 @@ def test_openrouter_api():
     """Тестируем Open Router API"""
 
     # Читаем API ключ из переменной окружения
-    api_key = os.getenv('OPENROUTER_API_KEY', "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")
+    api_key = os.getenv('OPENROUTER_API_KEY')
 
     url = "https://openrouter.ai/api/v1/chat/completions"
 
