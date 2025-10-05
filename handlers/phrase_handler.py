@@ -28,7 +28,7 @@ async def explain_phrase(update: Update, context: ContextTypes.DEFAULT_TYPE, phr
             logger.info(f"Пытаемся объяснить фразу через LLM API: '{phrase[:50]}...'")
 
             # Отправляем сообщение "бот думает"
-            thinking_msg = await update.message.reply_text("🎭 Расшифровываю литературный код...")
+            processing_msg = await update.message.reply_text("🔄 Обрабатываю текст...")
 
             # Инициализируем LLM сервис
             if not initialize_llm_service():
@@ -42,7 +42,7 @@ async def explain_phrase(update: Update, context: ContextTypes.DEFAULT_TYPE, phr
 
             if explanation:
                 logger.info(f"LLM API успешно объяснил фразу (длина: {len(explanation)} символов)")
-                response = f"🎭 \"{phrase}\"\n\n🤖 ИИ-генерация:\n\n{explanation}"
+                response = f"📝 Объяснение фразы \"{phrase}\":\n\n{explanation}"
             else:
                 logger.warning(f"LLM API не смог объяснить фразу: '{phrase[:50]}...'")
                 response = (
@@ -53,9 +53,9 @@ async def explain_phrase(update: Update, context: ContextTypes.DEFAULT_TYPE, phr
                 )
 
         # Удаляем сообщение "бот думает" если оно было отправлено
-        if 'thinking_msg' in locals():
+        if 'processing_msg' in locals():
             try:
-                await thinking_msg.delete()
+                await processing_msg.delete()
             except Exception as e:
                 logger.warning(f"Не удалось удалить сообщение 'бот думает': {e}")
 

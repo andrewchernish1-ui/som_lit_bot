@@ -19,15 +19,7 @@ def setup_handlers(application: Application) -> None:
     application.add_handler(CommandHandler("start", start))
 
     # Обработчик колбэк-запросов (Inline кнопки)
-    from handlers.quiz_handler import handle_callback
-    from handlers.message_handler import handle_dictionary_callback
-
-    # Создаем обработчики для разных типов колбэков
-    quiz_handler = CallbackQueryHandler(handle_callback, pattern=r"^quiz_")
-    dict_handler = CallbackQueryHandler(handle_dictionary_callback, pattern=r"^dict_")
-
-    application.add_handler(quiz_handler)
-    application.add_handler(dict_handler)
+    # Убраны обработчики для словаря и викторины
 
     # Обработчик всех остальных колбэк-запросов
     application.add_handler(CallbackQueryHandler(lambda u, c: u.callback_query.answer()))

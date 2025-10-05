@@ -35,14 +35,14 @@ async def explain_word(update: Update, context: ContextTypes.DEFAULT_TYPE, word:
         logger.info(f"Пытаемся получить объяснение слова '{word}' через LLM API")
 
         # Отправляем сообщение "бот думает"
-        thinking_msg = await update.message.reply_text("🔍 Ищу объяснение в литературных архивах...")
+        processing_msg = await update.message.reply_text("🔄 Обрабатываю текст...")
 
         explanation = generate_word_explanation(word)
 
         if explanation:
             # API успешно вернул объяснение
             logger.info(f"LLM API успешно вернул объяснение слова '{word}' (длина: {len(explanation)} символов)")
-            response = f"📖 {word}\n\n🤖 ИИ-генерация:\n\n{explanation}"
+            response = f"📖 {word}\n\n{explanation}"
         else:
             # API не сработал, пробуем предварительную базу как fallback
             logger.warning(f"LLM API не смог объяснить слово '{word}', пробуем предварительную базу")
@@ -65,7 +65,7 @@ async def explain_word(update: Update, context: ContextTypes.DEFAULT_TYPE, word:
 
         # Удаляем сообщение "бот думает" и отправляем ответ пользователю
         try:
-            await thinking_msg.delete()
+            await processing_msg.delete()
         except Exception as e:
             logger.warning(f"Не удалось удалить сообщение 'бот думает': {e}")
 
