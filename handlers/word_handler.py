@@ -4,8 +4,7 @@ from telegram.ext import ContextTypes
 import logging
 from literary_data import get_word_definition, format_word_response
 from llm_service import generate_word_explanation, initialize_llm_service
-from database import save_word
-from keyboards import get_response_actions_keyboard
+
 
 logger = logging.getLogger(__name__)
 
@@ -71,15 +70,7 @@ async def explain_word(update: Update, context: ContextTypes.DEFAULT_TYPE, word:
 
         logger.info(f"Отправляем ответ пользователю {user_id} для слова '{word}'")
 
-        # Создаем клавиатуру действий
-        keyboard = get_response_actions_keyboard(word)
-
-        await update.message.reply_text(response, reply_markup=keyboard)
-
-        # Сохраняем слово в личный словарь пользователя (если объяснение удалось)
-        if explanation:
-            logger.info(f"Сохраняем слово '{word}' в личный словарь пользователя {user_id}")
-            save_word(user_id, word, explanation)
+        await update.message.reply_text(response)
 
         logger.info(f"Успешно обработан запрос на объяснение слова '{word}' для пользователя {user_id}")
 
