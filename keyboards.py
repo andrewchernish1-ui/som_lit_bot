@@ -38,19 +38,9 @@ def get_dictionary_actions_keyboard() -> InlineKeyboardMarkup:
 
 def get_response_actions_keyboard(word: str = None) -> InlineKeyboardMarkup:
     """Создает клавиатуру действий для ответа бота"""
-    keyboard = []
-
-    if word:
-        keyboard.append([
-            InlineKeyboardButton("📚 Добавить в словарь", callback_data=f"add_word_{word}"),
-            InlineKeyboardButton("⭐ Оценить ответ", callback_data="rate_response")
-        ])
-
-    keyboard.append([
-        InlineKeyboardButton("🔄 Объяснить иначе", callback_data="explain_again"),
-        InlineKeyboardButton("❓ Задать вопрос", callback_data="ask_question"),
-        InlineKeyboardButton("📋 Меню", callback_data="show_menu")
-    ])
+    keyboard = [
+        [InlineKeyboardButton("📋 Меню", callback_data="show_menu")]
+    ]
 
     return InlineKeyboardMarkup(keyboard)
 
