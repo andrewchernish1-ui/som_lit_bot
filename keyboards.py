@@ -48,7 +48,8 @@ def get_response_actions_keyboard(word: str = None) -> InlineKeyboardMarkup:
 
     keyboard.append([
         InlineKeyboardButton("🔄 Объяснить иначе", callback_data="explain_again"),
-        InlineKeyboardButton("❓ Задать вопрос", callback_data="ask_question")
+        InlineKeyboardButton("❓ Задать вопрос", callback_data="ask_question"),
+        InlineKeyboardButton("📋 Меню", callback_data="show_menu")
     ])
 
     return InlineKeyboardMarkup(keyboard)

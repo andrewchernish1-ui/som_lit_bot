@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 import logging
 from literary_data import get_phrase_explanation
 from llm_service import generate_phrase_explanation, initialize_llm_service
+from keyboards import get_response_actions_keyboard
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +66,10 @@ async def explain_phrase(update: Update, context: ContextTypes.DEFAULT_TYPE, phr
             # Если ответ слишком длинный, обрезаем и добавляем предупреждение
             response = response[:max_length-100] + "\n\n... [Ответ обрезан из-за ограничений Telegram]"
 
-        await update.message.reply_text(response)
+        await update.message.reply_text(
+            response,
+            reply_markup=get_response_actions_keyboard()
+        )
 
     except Exception as e:
         logger.error(f"Ошибка при объяснении фразы '{phrase[:50]}...': {e}")

@@ -3,6 +3,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 import logging
 from llm_service import generate_text_retelling, initialize_llm_service
+from keyboards import get_response_actions_keyboard
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +74,10 @@ async def retell_text(update: Update, context: ContextTypes.DEFAULT_TYPE, text: 
                 logger.warning(f"Не удалось удалить сообщение об обработке для пользователя {user_id}: {e}")
 
         logger.info(f"Отправляем пересказ пользователю {user_id}")
-        await update.message.reply_text(response)
+        await update.message.reply_text(
+            response,
+            reply_markup=get_response_actions_keyboard()
+        )
 
         logger.info(f"Успешно выполнен пересказ текста для пользователя {user_id}")
 

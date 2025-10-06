@@ -70,12 +70,14 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         )
 
     else:
+        from keyboards import get_main_menu_keyboard
         await update.message.reply_text(
             "❓ Пожалуйста, выберите функцию из меню или используйте команды:\n"
             "/слово - объяснить слово\n"
             "/объясни - разобрать фразу\n"
             "/перескажи - пересказать текст\n"
-            "/характер - характеристика героя"
+            "/характер - характеристика героя",
+            reply_markup=get_main_menu_keyboard()
         )
 
 async def handle_word_request(update: Update, context: ContextTypes.DEFAULT_TYPE, word: str) -> None:

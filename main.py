@@ -19,7 +19,8 @@ def setup_handlers(application: Application) -> None:
     application.add_handler(CommandHandler("start", start))
 
     # Обработчик колбэк-запросов (Inline кнопки)
-    # Убраны обработчики для словаря и викторины
+    from handlers.callback_handler import handle_callback
+    application.add_handler(CallbackQueryHandler(handle_callback))
 
     # Обработчик всех остальных колбэк-запросов
     application.add_handler(CallbackQueryHandler(lambda u, c: u.callback_query.answer()))

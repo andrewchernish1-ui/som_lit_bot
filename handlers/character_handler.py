@@ -3,6 +3,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 import logging
 from llm_service import generate_character_description, initialize_llm_service
+from keyboards import get_response_actions_keyboard
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,10 @@ async def characterize_hero(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             response = response[:max_length-100] + "\n\n... [Характеристика обрезана из-за ограничений Telegram]"
 
         logger.info(f"Отправляем характеристику героя пользователю {user_id}")
-        await update.message.reply_text(response)
+        await update.message.reply_text(
+            response,
+            reply_markup=get_response_actions_keyboard()
+        )
 
         logger.info(f"Успешно выполнена характеристика героя '{character_info}' для пользователя {user_id}")
 
