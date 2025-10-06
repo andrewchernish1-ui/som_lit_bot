@@ -126,11 +126,12 @@ class TestCallbackHandler:
 class TestStartHandler:
     """Тесты для start_handler.py"""
 
-    def test_start_command(self, mock_update, mock_context):
+    @pytest.mark.asyncio
+    async def test_start_command(self, mock_update, mock_context):
         """Тест команды /start"""
         from handlers.start_handler import start
 
-        start(mock_update, mock_context)
+        await start(mock_update, mock_context)
 
         # Проверим что отправлено приветственное сообщение
         mock_update.message.reply_html.assert_called_once()

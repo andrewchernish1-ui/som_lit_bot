@@ -1,6 +1,6 @@
 """Тесты для LLM сервиса (OpenRouter API)"""
 import pytest
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock, AsyncMock, mock_open
 import json
 
 
@@ -77,16 +77,21 @@ class TestLLMService:
             }]
         }
 
-        with patch('httpx.post') as mock_post:
+        with patch('httpx.AsyncClient') as mock_client_class:
+            mock_client = MagicMock()
+            mock_client_class.return_value.__aenter__.return_value = mock_client
+            mock_client_class.return_value.__aexit__.return_value = None
+
             mock_response = MagicMock()
-            mock_response.json.return_value = mock_response_data
-            mock_post.return_value = mock_response
+            mock_response.json = MagicMock(return_value=mock_response_data)
+            mock_client.post = AsyncMock(return_value=mock_response)
 
             with patch.dict('os.environ', {'OPENROUTER_API_KEY': 'test_key'}):
                 result = generate_phrase_explanation("глубокая фраза")
 
                 assert result is not None
                 assert "глубокую мысль" in result.lower()
+                mock_client.post.assert_called_once()
 
     def test_generate_text_retelling_success(self):
         """Тест успешного пересказывания текста"""
@@ -100,16 +105,21 @@ class TestLLMService:
             }]
         }
 
-        with patch('httpx.post') as mock_post:
+        with patch('httpx.AsyncClient') as mock_client_class:
+            mock_client = MagicMock()
+            mock_client_class.return_value.__aenter__.return_value = mock_client
+            mock_client_class.return_value.__aexit__.return_value = None
+
             mock_response = MagicMock()
-            mock_response.json.return_value = mock_response_data
-            mock_post.return_value = mock_response
+            mock_response.json = MagicMock(return_value=mock_response_data)
+            mock_client.post = AsyncMock(return_value=mock_response)
 
             with patch.dict('os.environ', {'OPENROUTER_API_KEY': 'test_key'}):
                 result = generate_text_retelling("старый текст")
 
                 assert result is not None
                 assert "современный пересказ" in result.lower()
+                mock_client.post.assert_called_once()
 
     def test_generate_character_description_success(self):
         """Тест успешной характеристики героя"""
@@ -123,16 +133,21 @@ class TestLLMService:
             }]
         }
 
-        with patch('httpx.post') as mock_post:
+        with patch('httpx.AsyncClient') as mock_client_class:
+            mock_client = MagicMock()
+            mock_client_class.return_value.__aenter__.return_value = mock_client
+            mock_client_class.return_value.__aexit__.return_value = None
+
             mock_response = MagicMock()
-            mock_response.json.return_value = mock_response_data
-            mock_post.return_value = mock_response
+            mock_response.json = MagicMock(return_value=mock_response_data)
+            mock_client.post = AsyncMock(return_value=mock_response)
 
             with patch.dict('os.environ', {'OPENROUTER_API_KEY': 'test_key'}):
                 result = generate_character_description("Обломов")
 
                 assert result is not None
                 assert "ленивый дворянин" in result.lower()
+                mock_client.post.assert_called_once()
 
     @pytest.mark.parametrize("text_length", [100, 5000, 10000])
     def test_text_length_limits(self, text_length):
