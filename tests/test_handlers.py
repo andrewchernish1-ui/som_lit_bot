@@ -7,7 +7,8 @@ from unittest.mock import patch, MagicMock
 class TestMessageHandler:
     """Тесты для message_handler.py"""
 
-    def test_handle_menu_selection_word(self, mock_update, mock_context):
+    @pytest.mark.asyncio
+    async def test_handle_menu_selection_word(self, mock_update, mock_context):
         """Тест выбора пункта меню - объяснение слова"""
         from handlers.message_handler import handle_menu_selection
 
@@ -17,7 +18,7 @@ class TestMessageHandler:
         from handlers.message_handler import USER_STATES
         USER_STATES.clear()
 
-        handle_menu_selection(mock_update, mock_context, mock_update.message.text)
+        await handle_menu_selection(mock_update, mock_context, mock_update.message.text)
 
         # Проверим что состояние установлено
         assert USER_STATES[mock_update.effective_user.id] == 1  # STATE_WAITING_WORD
@@ -25,7 +26,8 @@ class TestMessageHandler:
         # Проверим что отправлено сообщение
         mock_update.message.reply_text.assert_called_with("📝 Введите слово, которое нужно объяснить:")
 
-    def test_handle_menu_selection_phrase(self, mock_update, mock_context):
+    @pytest.mark.asyncio
+    async def test_handle_menu_selection_phrase(self, mock_update, mock_context):
         """Тест выбора пункта меню - разбор фразы"""
         from handlers.message_handler import handle_menu_selection
 
@@ -34,12 +36,13 @@ class TestMessageHandler:
         from handlers.message_handler import USER_STATES
         USER_STATES.clear()
 
-        handle_menu_selection(mock_update, mock_context, mock_update.message.text)
+        await handle_menu_selection(mock_update, mock_context, mock_update.message.text)
 
         assert USER_STATES[mock_update.effective_user.id] == 2  # STATE_WAITING_PHRASE
         mock_update.message.reply_text.assert_called_with("📖 Отправьте мне фразу, культурное понятие или имя для объяснения:")
 
-    def test_handle_menu_selection_retell(self, mock_update, mock_context):
+    @pytest.mark.asyncio
+    async def test_handle_menu_selection_retell(self, mock_update, mock_context):
         """Тест выбора пункта меню - пересказ текста"""
         from handlers.message_handler import handle_menu_selection
 
@@ -48,12 +51,13 @@ class TestMessageHandler:
         from handlers.message_handler import USER_STATES
         USER_STATES.clear()
 
-        handle_menu_selection(mock_update, mock_context, mock_update.message.text)
+        await handle_menu_selection(mock_update, mock_context, mock_update.message.text)
 
         assert USER_STATES[mock_update.effective_user.id] == 3  # STATE_WAITING_RETELL
         mock_update.message.reply_text.assert_called_with("🔄 Отправьте текст для пересказывания современным языком:")
 
-    def test_handle_menu_selection_character(self, mock_update, mock_context):
+    @pytest.mark.asyncio
+    async def test_handle_menu_selection_character(self, mock_update, mock_context):
         """Тест выбора пункта меню - характеристика героя"""
         from handlers.message_handler import handle_menu_selection
 
@@ -62,18 +66,19 @@ class TestMessageHandler:
         from handlers.message_handler import USER_STATES
         USER_STATES.clear()
 
-        handle_menu_selection(mock_update, mock_context, mock_update.message.text)
+        await handle_menu_selection(mock_update, mock_context, mock_update.message.text)
 
         assert USER_STATES[mock_update.effective_user.id] == 4  # STATE_WAITING_CHARACTER
         mock_update.message.reply_text.assert_called_with("🎭 Введите имя и фамилию героя, а также произведение (например: Обломов, Гончаров \"Обломов\"):")
 
-    def test_handle_menu_selection_unknown(self, mock_update, mock_context):
+    @pytest.mark.asyncio
+    async def test_handle_menu_selection_unknown(self, mock_update, mock_context):
         """Тест обработки неизвестного выбора меню"""
         from handlers.message_handler import handle_menu_selection
 
         mock_update.message.text = "Неизвестная команда"
 
-        handle_menu_selection(mock_update, mock_context, mock_update.message.text)
+        await handle_menu_selection(mock_update, mock_context, mock_update.message.text)
 
         # Должен отправить сообщение с меню
         mock_update.message.reply_text.assert_called_once()

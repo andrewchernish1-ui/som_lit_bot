@@ -26,7 +26,8 @@ class TestKeyboards:
             "4️⃣ Характеристика героя"
         ]
 
-        actual_texts = [row[0] for row in keyboard.keyboard]
+        # Извлекаем текст из KeyboardButton объектов
+        actual_texts = [row[0].text for row in keyboard.keyboard]
         assert actual_texts == expected_texts
 
     def test_get_response_actions_keyboard_simple(self):

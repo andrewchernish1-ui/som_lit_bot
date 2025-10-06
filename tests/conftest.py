@@ -22,8 +22,16 @@ def mock_update():
     update.message.text = "test message"
     update.message.chat = MagicMock(spec=Chat)
     update.message.chat.id = 123456789
-    update.message.reply_text = MagicMock()
-    update.message.reply_html = MagicMock()
+    # Создаем async mock для reply методов
+    update.message.reply_text = MagicMock(return_value=None)  # sync для простоты
+    update.message.reply_html = MagicMock(return_value=None)
+
+    # Для callback_query
+    update.callback_query = MagicMock()
+    update.callback_query.data = "test"
+    update.callback_query.answer = MagicMock(return_value=None)
+    update.callback_query.message = MagicMock()
+    update.callback_query.message.reply_text = MagicMock(return_value=None)
 
     return update
 
