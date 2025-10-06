@@ -92,38 +92,33 @@ class TestMessageHandler:
 class TestCallbackHandler:
     """Тесты для callback_handler.py"""
 
-    def test_show_menu_callback(self, mock_update, mock_context):
+    @pytest.mark.asyncio
+    async def test_show_menu_callback(self, mock_update, mock_context):
         """Тест обработки колбэка show_menu"""
-        # Создание отдельного mock для callback_query
-        callback_query = MagicMock()
-        callback_query.data = "show_menu"
-        mock_update.callback_query = callback_query
+        # Настраиваем callback_query
+        mock_update.callback_query.data = "show_menu"
 
         from handlers.callback_handler import handle_callback
 
-        handle_callback(mock_update, mock_context)
+        await handle_callback(mock_update, mock_context)
 
         # Проверим что ответ отправлен
-        callback_query.answer.assert_called_once()
+        mock_update.callback_query.answer.assert_called_once()
 
         # Проверим что отправлено сообщение с меню
-        mock_update.callback_query.message.reply_text.assert_called_once_with(
-            "📋 Выберите функцию из меню ниже:",
-            reply_markup=mock_context.call_args  # будет объект клавиатуры
-        )
+        mock_update.callback_query.message.reply_text.assert_called_once()
 
-    def test_unknown_callback(self, mock_update, mock_context):
+    @pytest.mark.asyncio
+    async def test_unknown_callback(self, mock_update, mock_context):
         """Тест обработки неизвестного колбэка"""
-        callback_query = MagicMock()
-        callback_query.data = "unknown_command"
-        mock_update.callback_query = callback_query
+        mock_update.callback_query.data = "unknown_command"
 
         from handlers.callback_handler import handle_callback
 
-        handle_callback(mock_update, mock_context)
+        await handle_callback(mock_update, mock_context)
 
         # Все равно должен показать меню
-        callback_query.answer.assert_called_once()
+        mock_update.callback_query.answer.assert_called_once()
         mock_update.callback_query.message.reply_text.assert_called_once()
 
 

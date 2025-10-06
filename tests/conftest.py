@@ -13,6 +13,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 @pytest.fixture
 def mock_update():
     """Фикстура для создания mock Update объекта"""
+    from unittest.mock import AsyncMock
+
     update = MagicMock(spec=Update)
     update.effective_user = MagicMock(spec=User)
     update.effective_user.id = 123456789
@@ -22,16 +24,17 @@ def mock_update():
     update.message.text = "test message"
     update.message.chat = MagicMock(spec=Chat)
     update.message.chat.id = 123456789
+
     # Создаем async mock для reply методов
-    update.message.reply_text = MagicMock(return_value=None)  # sync для простоты
-    update.message.reply_html = MagicMock(return_value=None)
+    update.message.reply_text = AsyncMock()
+    update.message.reply_html = AsyncMock()
 
     # Для callback_query
     update.callback_query = MagicMock()
     update.callback_query.data = "test"
-    update.callback_query.answer = MagicMock(return_value=None)
+    update.callback_query.answer = AsyncMock()
     update.callback_query.message = MagicMock()
-    update.callback_query.message.reply_text = MagicMock(return_value=None)
+    update.callback_query.message.reply_text = AsyncMock()
 
     return update
 

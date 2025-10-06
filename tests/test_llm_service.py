@@ -37,10 +37,14 @@ class TestLLMService:
             }]
         }
 
-        with patch('llm_service.httpx.post') as mock_post:
+        with patch('httpx.AsyncClient') as mock_client_class:
+            mock_client = MagicMock()
+            mock_client_class.return_value.__aenter__.return_value = mock_client
+            mock_client_class.return_value.__aexit__.return_value = None
+
             mock_response = MagicMock()
-            mock_response.json.return_value = mock_response_data
-            mock_post.return_value = mock_response
+            mock_response.json = MagicMock(return_value=mock_response_data)
+            mock_client.post = AsyncMock(return_value=mock_response)
 
             with patch.dict('os.environ', {'OPENROUTER_API_KEY': 'test_key'}):
                 result = generate_word_explanation("метафора")
@@ -49,7 +53,7 @@ class TestLLMService:
                 assert result is not None
                 assert isinstance(result, str)
                 assert len(result) > 0
-                mock_post.assert_called_once()
+                mock_client.post.assert_called_once()
 
     def test_generate_word_explanation_api_error(self):
         """Тест обработки ошибки API при объяснении слова"""
