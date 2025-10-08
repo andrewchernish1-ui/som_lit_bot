@@ -21,7 +21,7 @@ def test_openrouter_api():
     }
 
     payload = {
-        "model": "deepseek/deepseek-chat-v3.1:free",
+        "model": "google/gemini-2.0-flash-lite-001",
         "messages": [
             {
                 "role": "user",
